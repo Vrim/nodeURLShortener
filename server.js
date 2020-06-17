@@ -87,7 +87,8 @@ app.post("/api/shorturl/new", async function(req, res) {
 
 app.get("/api/shorturl/:num", function(req, res) {
   var num = req.params.num;
-  if (num.isNaN()) {
+  console.log(num);
+  if (isNaN(num)) {
     res.json({ error: "Shorturl does not exist." });
   } else {
     num = parseInt(num);
@@ -96,7 +97,9 @@ app.get("/api/shorturl/:num", function(req, res) {
         res.json({ error: "Shorturl does not exist." });
         return console.log(err);
       } else {
-        res.redirect(data.get("original_url"));
+        var url_ = data.get("original_url");
+        console.log(url_)
+        res.redirect(url_);
       }
     });
   }
