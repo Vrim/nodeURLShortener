@@ -3,12 +3,12 @@ Url shortener implemented in Node.js using Express and MongoDB
 
 #### Creation Example:
 
-POST [project_url]/api/shorturl/new - body (urlencoded) :  url=https://www.google.com
+POST https://tortoiseshell-foremost-waiter.glitch.me/api/shorturl/new - body (urlencoded) :  url=https://www.google.com
 
 #### Usage:
 
-[this_project_url]/api/shorturl/3
+https://tortoiseshell-foremost-waiter.glitch.me/api/shorturl/0
 
 #### Will redirect to:
 
-https://www.freecodecamp.org/forum/
+https://www.google.com
