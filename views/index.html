@@ -4,9 +4,9 @@
 
    <head>
       <title>URL Shortener</title>
-      <link rel="shortcut icon" href="https://cdn.hyperdev.com/us-east-1%3A52a203ff-088b-420f-81be-45bf559d01b1%2Ffavicon.ico" type="image/x-icon"/>
+      <link rel="shortcut icon" href="/shorturl/public/favicon.ico" type="image/x-icon"/>
       <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
-      <link href="/public/style.css" rel="stylesheet" type="text/css">
+      <link href="/shorturl/public/style.css" rel="stylesheet" type="text/css">
    </head>
 
    <body>
@@ -16,16 +16,16 @@ nodeURLShortener Microservice</h2>
         
         <h3>Short URL Creation </h3>
         <p>
-          example: <code>POST https://tortoiseshell-foremost-waiter.glitch.me/api/shorturl/new</code> - <code>https://www.google.com</code>
+          example: <code>POST https://projects.fairchild.dev/shorturl/api/new</code> - <code>https://www.google.com</code>
         </p>
-        <form action="api/shorturl/new" method="POST">
+        <form action="/shorturl/api/new" method="POST">
           <label for="url_input">URL to be shortened</label>
           <input id="url_input" type="text" name="url" value="https://www.example.com">
           <input type="submit" value="POST URL">
         </form>
         <h3>Example Usage:</h3>
-        <a href="https://tortoiseshell-foremost-waiter.glitch.me/api/shorturl/0">
-          https://tortoiseshell-foremost-waiter.glitch.me/api/shorturl/0
+        <a href="/shorturl/api/0">
+          https://projects.fairchild.dev/shorturl/api/0
         </a>
 
         <h3>Will Redirect to:</h3>
@@ -37,6 +37,4 @@ nodeURLShortener Microservice</h2>
         </p>
       </div>
    </body>
-
-
 </html>

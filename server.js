@@ -1,10 +1,9 @@
 "use strict";
-
+require("dotenv").config();
 var express = require("express");
-var mongo = require("mongodb");
 var mongoose = require("mongoose");
-var dns = require("dns");
 var bp = require("body-parser");
+var nodeUri = require("node-uri");
 
 var cors = require("cors");
 
@@ -14,12 +13,12 @@ var app = express();
 var port = process.env.PORT || 3000;
 
 /** this project needs a db !! **/
-
 mongoose.connect(process.env.MONGO_URI);
+console.log(process.env.MONGO_URI);
 var Schema = mongoose.Schema;
 var urlSchema = new Schema({
   original_url: String, // String is shorthand for {type: String}
-  short_url: Number
+  short_url: Number,
 });
 var Url = mongoose.model("Url", urlSchema);
 
@@ -30,81 +29,102 @@ app.use(cors());
 app.use(bp.urlencoded({ extended: false }));
 app.use("/public", express.static(process.cwd() + "/public"));
 
-app.get("/", function(req, res) {
+app.get(process.env.ROOT_DIR, function (req, res) {
   res.sendFile(process.cwd() + "/views/index.html");
 });
 
 // your first API endpoint...
-app.post("/api/shorturl/new", async function(req, res) {
+app.post(process.env.ROOT_DIR + "/api/new", async function (req, res) {
   var original_url = req.body.url;
   console.log(original_url);
-  const REPLACE_REGEX = /^https?:\/\//i;
-  const res1 = original_url.replace(REPLACE_REGEX, "");
-  await dns.lookup(res1, function(err) {
-    if (err) {
-      console.log(err);
-      return res.json({ error: "invalid URL." });
-    }
-  });
 
-  await Url.findOne({ original_url: original_url }, function(err, data) {
-    if (err) {
-      console.log("nope");
-      res.end();
-      return console.log(err);
-    } else {
-      if (data) {
-        console.log("exists");
-        var num_ = data.get("short_url");
-        console.log(data);
+  try {
+    nodeUri.checkWebURL(original_url);    
+    console.log("Looks like an web URL");
+  } catch (err) {
+    console.log("Not a URI");
+    return res.json({ error: "invalid web URL." });
+  }
+  
+  try {
+    await Url.findOne({ original_url: original_url }, function (err, data) {
+      if (err) {
+        console.log("nope");
+        res.end();
+        return console.log(err);
+      } else {
+        if (data) {
+          console.log("exists");
+          var num_ = data.get("short_url");
+          console.log(data);
+          return res.json({
+            original_url: original_url,
+            short_url: num_,
+          });
+        }
+      }
+    });
+
+    var num = await Url.find().countDocuments(function (err, count) {
+      if (err) return console.log(err);
+      num = parseInt(count);
+    });
+    var url = new Url({
+      original_url: original_url,
+      short_url: num,
+    });
+    await url.save(function (err, done) {
+      if (err) {
         return res.json({
-          original_url: original_url,
-          short_url: num_
+          code: 500,
+          message: "" + err,
         });
       }
-    }
-  });
-
-  var num = await Url.find().countDocuments(function(err, count) {
-    if (err) return console.log(err);
-    num = parseInt(count);
-  });
-  var url = new Url({
-    original_url: original_url,
-    short_url: num
-  });
-  await url.save(function(err, done) {
-    if (err) {
-      res.end();
-      return console.log(err);
-    }
-    res.json({
-      original_url: original_url,
-      short_url: num
+      res.json({
+        original_url: original_url,
+        short_url: num,
+      });
+      var mongo = require("mongodb");
     });
-  });
+  } catch {
+    console.log("error with connection");
+    return res.json({
+      code: 500,
+      message: "error with connection",
+    });
+  }
 });
 
-app.get("/api/shorturl/:num", function(req, res) {
+app.get(process.env.ROOT_DIR + "/api/new", function (req, res) {
+  res.redirect(process.env.ROOT_DIR);
+});
+
+app.get(process.env.ROOT_DIR + "/api/:num", function (req, res) {
   var num = req.params.num;
   console.log(num);
   if (isNaN(num)) {
-    res.json({ error: "Shorturl does not exist." });
+    res.json({
+      error: "Shorturl does not exist. '" + num + "' is not a number.",
+    });
   } else {
     num = parseInt(num);
-    Url.findOne({ short_url: num }, function(err, data) {
+    Url.findOne({ short_url: num }, function (err, data) {
       if (err) {
-        res.json({ error: "Shorturl does not exist." });
+        res.json({
+          error: "" + err,
+          code: 500,
+          message: "Shorturl does not exist.",
+        });
         return console.log(err);
       } else {
         var url_ = data.get("original_url");
-        console.log(url_)
+        console.log(url_);
         res.redirect(url_);
       }
     });
   }
 });
 
-app.listen(port, function() {
+app.listen(port, function () {
   console.log("Node.js listening ...");
 });
